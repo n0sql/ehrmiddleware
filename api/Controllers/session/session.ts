@@ -1,5 +1,7 @@
+import dotenv from "dotenv";
 import { encode } from "js-base64";
 import { fetchJson, isOkResponse,Ok } from "../../fetcher/fetchJson";
+dotenv.config();
 
 class SessionManager {
     #username:string = process.env.ADMIN_USERNAME as string;
@@ -16,6 +18,7 @@ class SessionManager {
         this.#password = password;
         this.#host = url;
         this.#headers.set("Content-Type", "application/json");
+
     }
 
     checkSession() {
@@ -94,9 +97,8 @@ class SessionManager {
 
 export type RequestMethods = "GET" | "POST" | "PUT" | "DELETE";
 
-const sessionManager = new SessionManager(process.env.ADMIN_USERNAME as string, 
-    process.env.ADMIN_PASSWORD as string,
-    "https://ehrsystems.io/openmrs"
+const sessionManager = new SessionManager(process.env.ADMIN_USERNAME as string,
+    process.env.ADMIN_PASSWORD as string, process.env.OPENMRS_HOST as string
 );
 sessionManager.createSession();
 
