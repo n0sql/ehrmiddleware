@@ -1,5 +1,6 @@
 import { encode } from "js-base64";
-import { fetchJson, isOkResponse, Result, Err,Ok } from "../../fetcher/fetchJson";
+import { fetchJson, isOkResponse,Ok } from "../../fetcher/fetchJson";
+
 class SessionManager {
     #username:string = process.env.ADMIN_USERNAME as string;
     #password:string = process.env.ADMIN_PASSWORD as string;
@@ -11,9 +12,9 @@ class SessionManager {
     duration: number = 7200;
     created_at: Date = new Date();
     constructor(username: string = process.env.ADMIN_USERNAME as string, password: string = process.env.ADMIN_PASSWORD as string, url: string){
-        this.#username = username
-        this.#password = password
-        this.#host = url
+        this.#username = username;
+        this.#password = password;
+        this.#host = url;
         this.#headers.set("Content-Type", "application/json");
     }
 
@@ -74,7 +75,29 @@ class SessionManager {
             return result;
         }
     }
+
+    async endSession(){
+        const method = "DELETE" as const;
+        const response = await fetch(`${this.#host}${this.#session_endpoint}`, {
+            method: method,
+            headers: this.#headers,
+            redirect: "follow" as RequestRedirect,
+        });
+        if (!isOkResponse(response)) {
+            return new Error(`Failed to end session: ${response.status}`);
+        };
+        console.log("Session ended");
+        this.expired = true;
+        return response;
+    }
 }
 
-export type RequestMethods = "GET" | "POST" | "PUT" | "DELETE"
-export { SessionManager }
+export type RequestMethods = "GET" | "POST" | "PUT" | "DELETE";
+
+const sessionManager = new SessionManager(process.env.ADMIN_USERNAME as string, 
+    process.env.ADMIN_PASSWORD as string,
+    "https://ehrsystems.io/openmrs"
+);
+sessionManager.createSession();
+
+export default sessionManager

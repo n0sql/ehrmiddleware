@@ -1,4 +1,5 @@
-import { ResourceHandler } from "../handler/handler";
+import  ResourceHandler  from "../handler/handler";
+import sessionManager from "../session/session";
 
 
 export type User = {
@@ -7,33 +8,30 @@ export type User = {
 
 
 
-class UserHandler extends ResourceHandler {
-    constructor(){
-        super( "superman", "Admin123", "https://ehrsystems.io/openmrs");
-    }
-    userPredicate(x: unknown): x is User {
+class UserHandler {
+    static userPredicate(x: unknown): x is User {
         return ResourceHandler.resourcePredicate(x);
     };
-    async createUser(user: Partial<User>){
+    static async createUser(user: Partial<User>){
         const body = JSON.stringify(user);
-        return await this.postResource("/ws/rest/v1/user", this.userPredicate, body);
+        return await ResourceHandler.postResource("/ws/rest/v1/user", UserHandler.userPredicate, body);
     };
-    async getUser(uuid: string){
-        return await this.getResource(`/ws/rest/v1/user/${uuid}?v=full`, this.userPredicate);
+    static async getUser(uuid: string){
+        return await ResourceHandler.getResource(`/ws/rest/v1/user/${uuid}?v=full`, UserHandler.userPredicate);
     };
-    async getUserByUsername(username: string){
-        return await this.getResource(`/ws/rest/v1/user?q=${username}&v=full`, this.userPredicate);
+    static async getUserByUsername(username: string){
+        return await ResourceHandler.getResource(`/ws/rest/v1/user?q=${username}&v=full`, UserHandler.userPredicate);
     };
 
-    async updateUser(uuid: string, user: Partial<User>){
+    static async updateUser(uuid: string, user: Partial<User>){
         const body = JSON.stringify(user);
-        return await this.postResource(`/ws/rest/v1/user/${uuid}`, this.userPredicate, body);
+        return await ResourceHandler.postResource(`/ws/rest/v1/user/${uuid}`, UserHandler.userPredicate, body);
     };
 
-    async deleteUser(uuid: string){
-        return await this.deleteResource(`/ws/rest/v1/user/${uuid}`, this.userPredicate);
+    static async deleteUser(uuid: string){
+        return await ResourceHandler.deleteResource(`/ws/rest/v1/user/${uuid}`, UserHandler.userPredicate);
     };
 };
 
-export { UserHandler }
+export default UserHandler;
 

@@ -1,12 +1,8 @@
-import { SessionManager } from "../session/session";
+import  sessionManager  from "../session/session";
 import {  Result,Ok } from "../../fetcher/fetchJson";
 
 
-class ResourceHandler extends SessionManager {
-    constructor(username: string, password: string, host: string){
-        super(username, password, host);
-        this.createSession();
-    };
+class ResourceHandler {
     static resourcePredicate(x: unknown)  {
         if (x instanceof Error) {
             return false
@@ -14,30 +10,29 @@ class ResourceHandler extends SessionManager {
         if (typeof x !== "object" || x === null) return false;
         if (typeof x === "object" && 'results' in x) {
             return true; 
-        }
+        };
         if (typeof x === "object" && 'uuid' in x) {
             return true;
-        }
+        };
         return false;
-    }
-    async getResource<T>(endpoint: string, isResource: (x: unknown) => x is Ok<T>){
+    };
+    static async getResource<T>(endpoint: string, isResource: (x: unknown) => x is Ok<T>){
         const method = 'GET' as const;
-        const getFunction = await this.requestFunctionGenerator(method);
+        const getFunction = await sessionManager.requestFunctionGenerator(method);
         return await getFunction(endpoint, isResource) as Result<T, Error>;
     };
 
-    async postResource<T>(endpoint: string, isResource: (x: unknown) => x is Ok<T>, body: string){
+    static async postResource<T>(endpoint: string, isResource: (x: unknown) => x is Ok<T>, body: string){
         const method = 'POST' as const;
-        const postFunction = await this.requestFunctionGenerator(method);
+        const postFunction = await sessionManager.requestFunctionGenerator(method);
         return await postFunction(endpoint, isResource, body) as Result<T, Error>;
     };
 
-    async deleteResource<T>(endpoint: string, isResource: (x: unknown) => x is Ok<T>){
+    static async deleteResource<T>(endpoint: string, isResource: (x: unknown) => x is Ok<T>){
         const method = 'DELETE' as const;
-        const deleteFunction = await this.requestFunctionGenerator(method);
+        const deleteFunction = await sessionManager.requestFunctionGenerator(method);
         return await deleteFunction(endpoint, isResource) as Result<T, Error>;
     };
 }
 
-
-export { ResourceHandler }
+export default ResourceHandler;
