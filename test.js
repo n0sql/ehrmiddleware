@@ -1,14 +1,20 @@
 const location ={
     name:"Last Test Location",
-    description: "This is a AN UPDATED test location2",
-}
+    description: "This is a LAST test location FINAL UPDATE",
+};
 
-fetch('http://localhost:5600/location/06ad041a-2a85-4e6b-bbd7-9bcb18af94b8', {
-    method: 'DELETE',
-}).then(response => response.json()).then(data => {
-    console.log('Success:', data);
-}
-
-).catch((error) => {
+fetch('http://localhost:5600/ws/rest/v1/location/c69fd460-c175-4ba4-89b9-e831f702bace', {
+    method: 'DELETE'
+}).then((res)=>{
+    if(res.ok){
+        res.json().then((data)=>{
+            console.log(data);
+        })
+    } else {
+        res.text().then((text)=>{
+            console.log(text);
+        });
+    }
+}).catch((error) => {
     console.error('Error:', error);
 });

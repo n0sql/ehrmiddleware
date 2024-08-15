@@ -130,8 +130,7 @@ export interface User extends Resource{
     privileges: Privilege[],
     roles: Role[],
     retired: boolean
-}
-
+};
 export enum FormatClass {
     "java.lang.Boolean" = "java.lang.Boolean",
     "java.lang.Character" = "java.lang.Character",

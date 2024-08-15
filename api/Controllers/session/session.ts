@@ -1,6 +1,9 @@
 import dotenv from "dotenv";
 import { encode } from "js-base64";
 import { fetchJson, isOkResponse,Ok } from "../../fetcher/fetchJson";
+import resourcePredicate from "../../utils/typeguards";
+import { Request } from "express";
+import predicate from "../../utils/predicates";
 dotenv.config();
 
 class SessionManager {
@@ -18,7 +21,6 @@ class SessionManager {
         this.#password = password;
         this.#host = url;
         this.#headers.set("Content-Type", "application/json");
-
     }
 
     checkSession() {
@@ -61,22 +63,28 @@ class SessionManager {
         return new Error("Failed to create session: not authenticated"); 
     };
 
-    async requestFunctionGenerator(method: RequestMethods) {
+    async runRequest<T>( req:Request ) {
         if (this.checkSession()) {
             await this.createSession();
         }
+        const method = req.method as RequestMethods;
+        const endpoint = req.originalUrl;
         const request: RequestInit = {
             method: method,
             headers: this.#headers,
             redirect: "follow" as RequestRedirect,
         };
-        return async <T>(endpoint: string, predicate: (x: unknown) => x is Ok<T>, body?: string) => {
-            if (body) {
-                request.body = body;
-            }
-            const result = await fetchJson(`${this.#host}${endpoint}`, predicate, request);
-            return result;
+        if (req.method === "POST" || req.method === "PUT") {
+            const data:Partial<T> = req.body as T;
+            
+           if(!resourcePredicate(data)){
+                return new Error("Invalid data");
+           }
+              request.body = JSON.stringify(data); 
+           
         }
+        const result = await fetchJson(`${this.#host}${endpoint}`, predicate, request);
+        return result;
     }
 
     async endSession(){
